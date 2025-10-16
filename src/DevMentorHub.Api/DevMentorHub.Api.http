@@ -1,0 +1,6 @@
+@DevMentorHub.Api_HostAddress = http://localhost:5062
+
+GET {{DevMentorHub.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
