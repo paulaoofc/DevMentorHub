@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using DevMentorHub.Application.Interfaces;
 using DevMentorHub.Domain.Entities;
 using DevMentorHub.Application.DTOs;
-using AutoMapper;
 using DevMentorHub.Application.Commands;
 using System;
 
@@ -13,13 +12,11 @@ namespace DevMentorHub.Application.CommandHandlers
     public class CreateSnippetCommandHandler : IRequestHandler<CreateSnippetCommand, SnippetDto>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUser;
 
-        public CreateSnippetCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUser)
+        public CreateSnippetCommandHandler(IUnitOfWork unitOfWork, ICurrentUserService currentUser)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;
             _currentUser = currentUser;
         }
 
@@ -29,13 +26,29 @@ namespace DevMentorHub.Application.CommandHandlers
             if (project == null || project.OwnerId != _currentUser.UserId)
                 throw new UnauthorizedAccessException();
 
-            var snippet = _mapper.Map<Snippet>(request);
-            snippet.OwnerId = _currentUser.UserId;
-            snippet.CreatedAt = DateTime.UtcNow;
+            var snippet = new Snippet
+            {
+                Id = Guid.NewGuid(),
+                ProjectId = request.ProjectId,
+                OwnerId = _currentUser.UserId,
+                Language = request.Language,
+                Code = request.Code,
+                Description = request.Description,
+                CreatedAt = DateTime.UtcNow
+            };
+
             await _unitOfWork.Snippets.AddAsync(snippet, cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
 
-            return _mapper.Map<SnippetDto>(snippet);
+            return new SnippetDto
+            {
+                Id = snippet.Id,
+                ProjectId = snippet.ProjectId,
+                Language = snippet.Language,
+                Code = snippet.Code,
+                Description = snippet.Description,
+                CreatedAt = snippet.CreatedAt
+            };
         }
     }
 }

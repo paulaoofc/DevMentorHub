@@ -1,7 +1,7 @@
 using AutoMapper;
-using DevMentorHub.Application.Commands;
-using DevMentorHub.Application.DTOs;
 using DevMentorHub.Domain.Entities;
+using DevMentorHub.Application.DTOs;
+using DevMentorHub.Application.Commands;
 
 namespace DevMentorHub.Application.Mappings
 {
@@ -9,19 +9,7 @@ namespace DevMentorHub.Application.Mappings
     {
         public MappingProfile()
         {
-            CreateMap<CreateProjectCommand, Project>()
-                .ForMember(d => d.Id, o => o.MapFrom(_ => Guid.NewGuid()))
-                .ForMember(d => d.CreatedAt, o => o.MapFrom(_ => DateTime.UtcNow));
-            CreateMap<Project, ProjectDto>();
-            CreateMap<Project, ProjectWithSnippetsDto>();
-
-            CreateMap<CreateSnippetCommand, Snippet>()
-                .ForMember(d => d.Id, o => o.MapFrom(_ => Guid.NewGuid()))
-                .ForMember(d => d.CreatedAt, o => o.MapFrom(_ => DateTime.UtcNow));
-            CreateMap<Snippet, SnippetDto>();
-
-            CreateMap<CodeReview, CodeReviewDto>()
-                .ForMember(d => d.Status, o => o.MapFrom(s => s.Status.ToString()));
+            // kept empty after removing AutoMapper usage in handlers
         }
     }
 }

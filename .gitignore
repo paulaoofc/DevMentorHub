@@ -1,8 +1,6 @@
-# OS metadata
 .DS_Store
 Thumbs.db
 
-# User-specific files
 *.suo
 *.user
 *.userosscache
@@ -10,14 +8,12 @@ Thumbs.db
 *.rsuser
 *.swp
 
-# Build outputs
 [Bb]in/
 [Oo]bj/
 out/
 publish/
 artifacts/
 
-# VS/IDE
 .vs/
 .idea/
 *.DotSettings.user
@@ -27,10 +23,8 @@ _ReSharper*/
 _NCrunch_*/
 .ionide/
 
-# VS Code
 .vscode/
 
-# Test/Benchmark outputs
 TestResults*/
 .coverage
 *.coverage
@@ -38,40 +32,32 @@ TestResults*/
 BenchmarkDotNet.Artifacts/
 coverage*/
 
-# NuGet
 *.nupkg
 *.snupkg
 packages/
 .nuget/packages/
 project.lock.json
 
-# Logs / dumps
 logs/
 *.log
 *.dmp
 
-# Secrets / environment
 .env
 .env.*
 .secrets/
 appsettings.*.local.json
 appsettings.Local*.json
 
-# ASP.NET scaffolding
 ScaffoldingReadMe.txt
 
-# Azure/Pub profiles (user-specific)
 **/Properties/PublishProfiles/*.pubxml.user
 **/Properties/PublishProfiles/*.*.user
 
-# Static site build outputs
 wwwroot/dist/
 wwwroot/build/
 
-# Rider / JetBrains cache
 .gradle/
 
-# Misc
 *.tmp
 ~$*
 *.bak

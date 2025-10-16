@@ -3,9 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using DevMentorHub.Application.Interfaces;
 using DevMentorHub.Application.DTOs;
-using AutoMapper;
 using DevMentorHub.Application.Queries;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DevMentorHub.Application.QueryHandlers
 {
@@ -13,39 +13,45 @@ namespace DevMentorHub.Application.QueryHandlers
     {
         private readonly IUnitOfWork _uow;
         private readonly ICurrentUserService _currentUser;
-        private readonly IMapper _mapper;
-        public GetUserProjectsQueryHandler(IUnitOfWork uow, ICurrentUserService currentUser, IMapper mapper)
+        public GetUserProjectsQueryHandler(IUnitOfWork uow, ICurrentUserService currentUser)
         {
-            _uow = uow; _currentUser = currentUser; _mapper = mapper;
+            _uow = uow; _currentUser = currentUser;
         }
         public async Task<IEnumerable<ProjectDto>> Handle(GetUserProjectsQuery request, CancellationToken cancellationToken)
         {
             var list = await _uow.Projects.GetByOwnerAsync(_currentUser.UserId, cancellationToken);
-            return _mapper.Map<IEnumerable<ProjectDto>>(list);
+            return list.Select(p => new ProjectDto { Id = p.Id, Title = p.Title, Description = p.Description, CreatedAt = p.CreatedAt });
         }
     }
 
     public class GetProjectWithSnippetsQueryHandler : IRequestHandler<GetProjectWithSnippetsQuery, ProjectWithSnippetsDto>
     {
-        private readonly IUnitOfWork _uow; private readonly ICurrentUserService _currentUser; private readonly IMapper _mapper;
-        public GetProjectWithSnippetsQueryHandler(IUnitOfWork uow, ICurrentUserService currentUser, IMapper mapper) { _uow = uow; _currentUser = currentUser; _mapper = mapper; }
+        private readonly IUnitOfWork _uow; private readonly ICurrentUserService _currentUser;
+        public GetProjectWithSnippetsQueryHandler(IUnitOfWork uow, ICurrentUserService currentUser) { _uow = uow; _currentUser = currentUser; }
         public async Task<ProjectWithSnippetsDto?> Handle(GetProjectWithSnippetsQuery request, CancellationToken cancellationToken)
         {
             var project = await _uow.Projects.GetByIdAsync(request.ProjectId, cancellationToken);
             if (project == null || project.OwnerId != _currentUser.UserId) return null;
-            return _mapper.Map<ProjectWithSnippetsDto>(project);
+            return new ProjectWithSnippetsDto
+            {
+                Id = project.Id,
+                Title = project.Title,
+                Description = project.Description,
+                CreatedAt = project.CreatedAt,
+                Snippets = project.Snippets?.Select(s => new SnippetDto { Id = s.Id, ProjectId = s.ProjectId, Language = s.Language, Code = s.Code, Description = s.Description, CreatedAt = s.CreatedAt }).ToList() ?? new()
+            };
         }
     }
 
     public class GetSnippetQueryHandler : IRequestHandler<GetSnippetQuery, SnippetDto>
     {
-        private readonly IUnitOfWork _uow; private readonly ICurrentUserService _currentUser; private readonly IMapper _mapper;
-        public GetSnippetQueryHandler(IUnitOfWork uow, ICurrentUserService currentUser, IMapper mapper) { _uow = uow; _currentUser = currentUser; _mapper = mapper; }
+        private readonly IUnitOfWork _uow; private readonly ICurrentUserService _currentUser;
+        public GetSnippetQueryHandler(IUnitOfWork uow, ICurrentUserService currentUser) { _uow = uow; _currentUser = currentUser; }
         public async Task<SnippetDto?> Handle(GetSnippetQuery request, CancellationToken cancellationToken)
         {
-            var snippet = await _uow.Snippets.GetByIdAsync(request.SnippetId, cancellationToken);
-            if (snippet == null || snippet.OwnerId != _currentUser.UserId) return null;
-            return _mapper.Map<SnippetDto>(snippet);
+            var s = await _uow.Snippets.GetByIdAsync(request.SnippetId, cancellationToken);
+            if (s == null || s.OwnerId != _currentUser.UserId) return null;
+            return new SnippetDto { Id = s.Id, ProjectId = s.ProjectId, Language = s.Language, Code = s.Code, Description = s.Description, CreatedAt = s.CreatedAt };
         }
     }
 
@@ -58,7 +64,7 @@ namespace DevMentorHub.Application.QueryHandlers
             var snippet = await _uow.Snippets.GetByIdAsync(request.SnippetId, cancellationToken);
             if (snippet == null || snippet.OwnerId != _currentUser.UserId) return [];
             var list = await _uow.CodeReviews.GetBySnippetAsync(request.SnippetId, cancellationToken);
-            return list.ConvertAll(r => new CodeReviewSummaryDto { Id = r.Id, ResponseTextSnippet = r.ResponseText?.Split('\n')?[0] ?? string.Empty, CreatedAt = r.CreatedAt });
+            return list.Select(r => new CodeReviewSummaryDto { Id = r.Id, ResponseTextSnippet = r.ResponseText?.Split('\n')?[0] ?? string.Empty, CreatedAt = r.CreatedAt });
         }
     }
 

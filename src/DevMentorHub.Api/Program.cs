@@ -10,10 +10,8 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
 using DevMentorHub.Application.Commands;
-using DevMentorHub.Application.Mappings;
 using Polly;
 using System.Net.Http;
-using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,12 +47,6 @@ builder.Services.AddHttpClient<IChatGptService, ChatGptService>()
     .AddPolicyHandler(retryPolicy);
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateProjectCommand).Assembly));
-
-var mapperConfig = new MapperConfiguration(cfg =>
-{
-    cfg.AddProfile<MappingProfile>();
-});
-builder.Services.AddSingleton<IMapper>(sp => mapperConfig.CreateMapper());
 
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "dev-secret-key-change";
 var keyBytes = Encoding.UTF8.GetBytes(jwtKey);

@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using DevMentorHub.Application.Interfaces;
 using DevMentorHub.Domain.Entities;
 using DevMentorHub.Application.DTOs;
-using AutoMapper;
 using DevMentorHub.Application.Commands;
 using System;
 
